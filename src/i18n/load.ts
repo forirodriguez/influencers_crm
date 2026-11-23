@@ -1,6 +1,8 @@
 import { isLocale, type AppLocale } from "../lib/constants";
 import esAR from "./messages/es-AR/common.json";
+import mediaKitAR from "./messages/es-AR/media-kit.json";
 import esMX from "./messages/es-MX/common.json";
+import mediaKitMX from "./messages/es-MX/media-kit.json";
 
 type Messages = Record<string, unknown>;
 
@@ -23,6 +25,7 @@ export function resolveLocale(value: string | null | undefined): AppLocale {
 }
 
 export function loadMessages(locale: string): Messages {
-  if (locale === "es-MX" || locale === "es-CO") return deepMerge(esAR, esMX);
-  return esAR;
+  const base = locale === "es-MX" || locale === "es-CO" ? deepMerge(esAR, esMX) : esAR;
+  const mediaKit = locale === "es-MX" || locale === "es-CO" ? deepMerge(mediaKitAR, mediaKitMX) : mediaKitAR;
+  return deepMerge(base, mediaKit);
 }

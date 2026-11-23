@@ -19,24 +19,63 @@ export const socialPlatformEnum = pgEnum("social_platform", ["instagram", "tikto
 export const socialConnectionEnum = pgEnum("social_connection", ["api", "manual"]);
 export const socialStatusEnum = pgEnum("social_status", ["active", "expired", "revoked", "error"]);
 
+export type AudienceSlice = {
+  label: string;
+  share: number;
+};
+
+export type DeclaredAudience = {
+  summary: string;
+  countries: AudienceSlice[];
+  ages: AudienceSlice[];
+  genders: AudienceSlice[];
+};
+
+export type FeaturedCollaboration = {
+  id: string;
+  brand: string;
+  logoUrl: string;
+  detail: string;
+};
+
+export type MediaKitBlocks = {
+  photo: boolean;
+  bio: boolean;
+  niches: boolean;
+  metrics: boolean;
+  audience: boolean;
+  services: boolean;
+  featured: boolean;
+  posts: boolean;
+  contact: boolean;
+};
+
 export type MediaKitSettings = {
-  blocks: {
-    photo: boolean;
-    bio: boolean;
-    metrics: boolean;
-    services: boolean;
-    contact: boolean;
-  };
+  blocks: MediaKitBlocks;
   accent: string;
   indexable: boolean;
   showPrices: boolean;
+  featured: FeaturedCollaboration[];
+  declaredAudience: DeclaredAudience | null;
 };
 
 export const defaultMediaKitSettings: MediaKitSettings = {
-  blocks: { photo: true, bio: true, metrics: true, services: true, contact: true },
+  blocks: {
+    photo: true,
+    bio: true,
+    niches: true,
+    metrics: true,
+    audience: true,
+    services: true,
+    featured: true,
+    posts: true,
+    contact: true,
+  },
   accent: "#b8432f",
   indexable: false,
   showPrices: false,
+  featured: [],
+  declaredAudience: null,
 };
 
 export const creatorProfiles = pgTable(
