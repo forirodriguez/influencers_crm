@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: influencers_crm
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d influencers_crm"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/influencers_crm
+      DATABASE_URL_APP: postgres://app_user:app_user_local@localhost:5432/influencers_crm
+      DATABASE_URL_JOBS: postgres://app_jobs:app_jobs_local@localhost:5432/influencers_crm
+      AUTH_SECRET: ci-test-auth-secret-not-for-production
+      AUTH_MODE: local
+      AUTH_DEV_EXPOSE_LINKS: "true"
+      TOKEN_ENCRYPTION_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      INTEGRATIONS_MODE: mock
+      EMAIL_FROM: influencers_crm <noreply@localhost>
+      WHATSAPP_APP_SECRET: dev-whatsapp-secret
+      WHATSAPP_VERIFY_TOKEN: dev-verify-token
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run db:migrate
+      - run: npm test
+      - run: npm run build

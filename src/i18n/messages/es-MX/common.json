@@ -1,0 +1,28 @@
+{
+  "landing": {
+    "subtitle": "Anota quién te escribió, qué tienes que publicar y cuánto te deben. Los recordatorios salen por WhatsApp cuando hace falta.",
+    "cta": "Crea tu cuenta"
+  },
+  "auth": {
+    "loginTitle": "Ingresa",
+    "registerTitle": "Crea tu cuenta",
+    "sendLink": "Envíame el enlace",
+    "useMagic": "Prefiero un enlace por email",
+    "magicHelp": "En este entorno el enlace aparece aquí si está habilitado el modo local.",
+    "noAccount": "¿No tienes cuenta?",
+    "hasAccount": "¿Ya tienes cuenta?",
+    "errorGeneric": "No se pudo completar. Revisa los datos.",
+    "errorLink": "El enlace venció o ya se usó."
+  },
+  "onboarding": {
+    "title": "¿Desde dónde trabajas?",
+    "body": "Con el país definimos la moneda y la zona horaria. Lo puedes cambiar después."
+  },
+  "hoy": {
+    "emptyWeek": "No tienes entregas que venzan en los próximos 7 días.",
+    "emptyOverdue": "No tienes cobros vencidos."
+  },
+  "common": {
+    "empty": "Nada por aquí todavía."
+  }
+}
