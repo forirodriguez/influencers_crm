@@ -1,9 +1,12 @@
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { withUser } from "../../../db/client";
 import { addDays, formatCalendarDate, formatDateTime, zonedDateISO } from "../../../lib/dates";
 import { formatMoney } from "../../../lib/money";
+import { FollowUp } from "../../../modules/crm/ui/follow-up";
 import { listPaymentExpectations, listStaleDeals, listUpcomingDeliverables } from "../../../modules/crm/queries";
-import { displayPaymentStatus } from "../../../modules/crm/status";
+import { persistOverdue } from "../../../modules/crm/service";
+import { displayPaymentStatus, outstandingMinor } from "../../../modules/crm/status";
 import { requireAppContext } from "../../../modules/identity/context";
 
 export async function generateMetadata() {
@@ -13,10 +16,13 @@ export async function generateMetadata() {
 
 export default async function TodayPage() {
   const t = await getTranslations();
+  const crm = await getTranslations("crm");
   const labels = (await getTranslations("labels")) as (key: string) => string;
   const context = await requireAppContext();
+  const canEdit = context.workspace.role !== "viewer";
   const today = zonedDateISO(new Date(), context.user.timezone);
   const data = await withUser(context.user.id, async (db) => {
+    if (canEdit) await persistOverdue(db, context.workspace.workspaceId, today);
     const [deliverables, payments, stale] = await Promise.all([
       listUpcomingDeliverables(db, context.workspace.workspaceId, addDays(new Date(), 7)),
       listPaymentExpectations(db, context.workspace.workspaceId),
@@ -27,20 +33,30 @@ export default async function TodayPage() {
   const overdue = data.payments.filter((row) => displayPaymentStatus(row.status, row.dueDate, today) === "overdue");
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="font-display text-4xl">{t("hoy.hello", { name: context.user.name ?? "" })}</h1>
-        <p className="mt-2 max-w-2xl text-sm text-muted">{t("hoy.hint")}</p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="font-display text-4xl">{t("hoy.hello", { name: context.user.name ?? "" })}</h1>
+          <p className="mt-2 max-w-2xl text-sm text-muted">{crm("hoyIntro")}</p>
+        </div>
+        {canEdit ? (
+          <Link href="/acuerdos/nuevo" className="inline-flex min-h-11 items-center rounded-full bg-clay px-4 py-2 text-sm font-medium text-white">
+            {crm("newDeal")}
+          </Link>
+        ) : null}
       </div>
+      {!canEdit ? <p className="text-sm text-muted">{crm("readOnly")}</p> : null}
       <section>
         <h2 className="font-display text-2xl">{t("hoy.week")}</h2>
         {data.deliverables.length === 0 ? <p className="mt-2 text-sm text-muted">{t("hoy.emptyWeek")}</p> : (
           <ul className="mt-3 space-y-2">
             {data.deliverables.map((item) => (
-              <li key={item.id} className="rounded-2xl border border-line bg-card px-4 py-3">
-                <p className="font-medium">{item.dealTitle}</p>
-                <p className="text-sm text-muted">
-                  {item.brandName} · {labels(item.format)} · {item.publishDueAt ? formatDateTime(item.publishDueAt, context.user.locale, context.user.timezone) : t("crm.noDate")}
-                </p>
+              <li key={item.id}>
+                <Link href={`/acuerdos/${item.dealId}`} className="block rounded-2xl border border-line bg-card px-4 py-3">
+                  <p className="font-medium">{item.dealTitle}</p>
+                  <p className="text-sm text-muted">
+                    {item.brandName} · {labels(item.format)} · {item.publishDueAt ? formatDateTime(item.publishDueAt, context.user.locale, context.user.timezone) : crm("due")}
+                  </p>
+                </Link>
               </li>
             ))}
           </ul>
@@ -49,15 +65,31 @@ export default async function TodayPage() {
       <section>
         <h2 className="font-display text-2xl">{t("hoy.overdue")}</h2>
         {overdue.length === 0 ? <p className="mt-2 text-sm text-muted">{t("hoy.emptyOverdue")}</p> : (
-          <ul className="mt-3 space-y-2">
-            {overdue.map((item) => (
-              <li key={item.id} className="rounded-2xl border border-line bg-card px-4 py-3">
-                <p className="font-medium">{item.brandName}</p>
-                <p className="text-sm text-muted">
-                  {formatMoney(item.amountMinor, item.currency, context.user.locale)} · {formatCalendarDate(item.dueDate, context.user.locale)}
-                </p>
-              </li>
-            ))}
+          <ul className="mt-3 space-y-3">
+            {overdue.map((item) => {
+              const outstanding = outstandingMinor(item.amountMinor, item.receivedMinor);
+              const amount = formatMoney(outstanding > 0n ? outstanding : item.amountMinor, item.currency, context.user.locale);
+              return (
+                <li key={item.id} className="space-y-3 rounded-2xl border border-line bg-card px-4 py-3">
+                  <Link href={`/acuerdos/${item.dealId}`}>
+                    <p className="font-medium">{item.brandName}</p>
+                    <p className="text-sm text-muted">{item.dealTitle} · {amount} · {formatCalendarDate(item.dueDate, context.user.locale)}</p>
+                  </Link>
+                  <FollowUp
+                    text={crm("followUpText", {
+                      who: item.contactName || item.brandName,
+                      title: item.dealTitle,
+                      amount,
+                      due: formatCalendarDate(item.dueDate, context.user.locale),
+                      creator: context.user.name ?? "",
+                    })}
+                    subject={crm("followUpSubject", { brand: item.brandName })}
+                    phone={item.contactWhatsapp}
+                    email={item.contactEmail}
+                  />
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>
@@ -66,8 +98,10 @@ export default async function TodayPage() {
         {data.stale.length === 0 ? <p className="mt-2 text-sm text-muted">{t("hoy.emptyStale")}</p> : (
           <ul className="mt-3 space-y-2">
             {data.stale.map((item) => (
-              <li key={item.id} className="rounded-2xl border border-line bg-card px-4 py-3 text-sm">
-                {item.brandName} · {item.title} · {item.stageName}
+              <li key={item.id}>
+                <Link href={`/acuerdos/${item.id}`} className="block rounded-2xl border border-line bg-card px-4 py-3 text-sm">
+                  {item.brandName} · {item.title} · {item.stageName}
+                </Link>
               </li>
             ))}
           </ul>

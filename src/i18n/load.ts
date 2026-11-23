@@ -1,6 +1,8 @@
 import { isLocale, type AppLocale } from "../lib/constants";
 import esAR from "./messages/es-AR/common.json";
+import crmAR from "./messages/es-AR/crm.json";
 import esMX from "./messages/es-MX/common.json";
+import crmMX from "./messages/es-MX/crm.json";
 
 type Messages = Record<string, unknown>;
 
@@ -23,6 +25,7 @@ export function resolveLocale(value: string | null | undefined): AppLocale {
 }
 
 export function loadMessages(locale: string): Messages {
-  if (locale === "es-MX" || locale === "es-CO") return deepMerge(esAR, esMX);
-  return esAR;
+  const base = deepMerge(esAR, crmAR);
+  if (locale === "es-MX" || locale === "es-CO") return deepMerge(deepMerge(base, esMX), crmMX);
+  return base;
 }
