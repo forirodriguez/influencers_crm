@@ -15,6 +15,20 @@
       "when": 1795466232428,
       "tag": "0001_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795466400000,
+      "tag": "0002_crm_soft_delete",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795466500000,
+      "tag": "0003_crm_select_retired",
+      "breakpoints": true
     }
   ]
 }

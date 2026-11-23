@@ -1,12 +1,16 @@
-import { paymentSummary } from "../../../../../modules/crm/queries";
-import { zonedDateISO } from "../../../../../lib/dates";
-import { withWorkspace } from "../../../../../server/http";
 import { eq } from "drizzle-orm";
+import { zonedDateISO } from "../../../../../lib/dates";
+import { paymentSummary } from "../../../../../modules/crm/queries";
+import { persistOverdue } from "../../../../../modules/crm/service";
 import { users } from "../../../../../modules/identity/schema";
+import { withWorkspace } from "../../../../../server/http";
 
 export async function GET(req: Request) {
-  return withWorkspace(req, async ({ db, workspaceId, userId }) => {
+  return withWorkspace(req, async ({ db, workspaceId, userId, role }) => {
     const [user] = await db.select({ timezone: users.timezone }).from(users).where(eq(users.id, userId)).limit(1);
-    return { summary: await paymentSummary(db, workspaceId, zonedDateISO(new Date(), user?.timezone ?? "UTC")) };
+    const timeZone = user?.timezone ?? "UTC";
+    const today = zonedDateISO(new Date(), timeZone);
+    if (role !== "viewer") await persistOverdue(db, workspaceId, today);
+    return { summary: await paymentSummary(db, workspaceId, today, timeZone) };
   });
 }

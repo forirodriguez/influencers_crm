@@ -1,0 +1,20 @@
+{
+  "crm": {
+    "pipelineIntro": "Arrastra la tarjeta en el escritorio. En el celular, cambia la etapa con el selector.",
+    "deliverablesIntro": "Lo que tienes que entregar, con fecha de borrador, aprobación y publicación.",
+    "firstDeliveryHelp": "Si cargas una fecha, se crea el entregable.",
+    "paymentDueHelp": "Si hay monto y no pones fecha, la cuota vence a los 30 días.",
+    "lostHelp": "Cuenta por qué se perdió el acuerdo.",
+    "newBrandInline": "O carga una marca nueva",
+    "existingBrand": "Marca que ya cargué",
+    "followUpText": "Hola {who}, te escribo por «{title}». Quedó pendiente el pago de {amount}, con fecha {due}. ¿Me confirmas cuando lo pueden transferir? Gracias, {creator}.",
+    "followUpMissing": "Carga un WhatsApp o un email en el contacto de la marca.",
+    "deleteConfirm": "¿Seguro que quieres borrar esto?",
+    "noBrands": "Todavía no cargas marcas.",
+    "activityCreated": "Creaste el acuerdo",
+    "activityPayment": "Registraste un cobro de {amount}",
+    "activityDeliverable": "Sumaste un entregable",
+    "activityExpectation": "Sumaste una cuota de {amount}",
+    "activityUpdated": "Actualizaste un entregable"
+  }
+}
