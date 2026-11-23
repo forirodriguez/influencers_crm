@@ -1,0 +1,23 @@
+{
+  "mediaKit": {
+    "editorBody": "Edita la bio, los nichos, las tarifas y la audiencia. El enlace público ya se puede compartir.",
+    "previewHint": "La página lee el último snapshot. No consulta la API en cada visita.",
+    "viewer": "Tienes acceso de lectura en este espacio.",
+    "personalBody": "Si tu cuenta es personal, Instagram no permite conectarla. Cámbiala a profesional: Configuración y actividad → Tipo de cuenta y herramientas → Cambiar a cuenta profesional → Creador. Después vuelve a conectar.",
+    "manualHint": "Si todavía no conectas la API, carga los números a mano. En el media kit figuran como declarados.",
+    "under100": "Instagram no devuelve la audiencia si tienes menos de 100 seguidores. Cuando pases ese número, aparece sola en la próxima sincronización.",
+    "tiktokAudience": "TikTok no comparte la demografía por esta API. Puedes declararla abajo y se muestra como declarada.",
+    "audienceHint": "Lo que no trae la API lo puedes declarar. Se muestra aparte, con la marca de declarado.",
+    "featuredHint": "Suma marcas con las que ya trabajaste. El logo es un enlace a la imagen.",
+    "status": {
+      "expired": "Acceso vencido. Vuelve a conectar.",
+      "error": "Error de la red. Vuelve a conectar."
+    },
+    "banners": {
+      "oauth_state": "El enlace de conexión venció. Prueba de nuevo.",
+      "oauth_denied": "Cancelaste la conexión.",
+      "token_expired": "El acceso venció. Vuelve a conectar.",
+      "provider_rate_limited": "La red limitó las consultas. Prueba más tarde."
+    }
+  }
+}
