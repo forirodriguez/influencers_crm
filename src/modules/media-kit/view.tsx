@@ -31,7 +31,7 @@ export function MediaKitView({ kit, shareUrl }: { kit: PublicMediaKit; shareUrl?
             </div>
           )
         ) : null}
-        <h1 className="mt-4 font-display text-5xl leading-none">{kit.displayName}</h1>
+        <h1 className="mt-4 break-words font-display text-4xl leading-tight sm:text-5xl sm:leading-none">{kit.displayName}</h1>
         <p className="mt-3 text-sm text-muted">{[kit.city, countryName(kit.country, regions)].filter(Boolean).join(" · ")}</p>
         {show.niches && kit.niches.length > 0 ? (
           <ul className="mt-4 flex flex-wrap gap-2">
@@ -42,7 +42,7 @@ export function MediaKitView({ kit, shareUrl }: { kit: PublicMediaKit; shareUrl?
             ))}
           </ul>
         ) : null}
-        {show.bio && kit.bio ? <p className="mt-4 text-lg leading-relaxed">{kit.bio}</p> : null}
+        {show.bio && kit.bio ? <p className="mt-4 break-words text-lg leading-relaxed">{kit.bio}</p> : null}
         {kit.languages.length > 0 ? <p className="mt-3 text-xs uppercase tracking-wide text-muted">{kit.languages.join(" · ")}</p> : null}
       </header>
 
@@ -272,7 +272,7 @@ function PostFace({ post }: { post: { thumbnailUrl: string | null; type: string 
   return (
     <div className="flex h-full flex-col justify-end p-2 text-xs">
       <span className="uppercase text-muted">{post.type ?? "post"}</span>
-      {post.metrics.views ? <span>{new Intl.NumberFormat("es-AR").format(post.metrics.views)}</span> : null}
+      {post.metrics.views ? <span>{new Intl.NumberFormat("es-UY").format(post.metrics.views)}</span> : null}
     </div>
   );
 }

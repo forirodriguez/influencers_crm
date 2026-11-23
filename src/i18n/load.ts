@@ -1,10 +1,7 @@
-import { isLocale, type AppLocale } from "../lib/constants";
-import esAR from "./messages/es-AR/common.json";
-import crmAR from "./messages/es-AR/crm.json";
-import mediaKitAR from "./messages/es-AR/media-kit.json";
-import esMX from "./messages/es-MX/common.json";
-import crmMX from "./messages/es-MX/crm.json";
-import mediaKitMX from "./messages/es-MX/media-kit.json";
+import { ACTIVE_LOCALE, type AppLocale } from "../lib/constants";
+import esUY from "./messages/es-UY/common.json";
+import crmUY from "./messages/es-UY/crm.json";
+import mediaKitUY from "./messages/es-UY/media-kit.json";
 
 type Messages = Record<string, unknown>;
 
@@ -21,14 +18,14 @@ function deepMerge(base: Messages, overlay: Messages): Messages {
   return result;
 }
 
-export function resolveLocale(value: string | null | undefined): AppLocale {
-  if (value && isLocale(value)) return value;
-  return "es-AR";
+/** The product speaks Uruguayan Spanish. Other codes stay in the type so a catalog can be added later; they do not change the voice. */
+export function resolveLocale(value?: string | null): AppLocale {
+  if (value === ACTIVE_LOCALE) return ACTIVE_LOCALE;
+  return ACTIVE_LOCALE;
 }
 
-export function loadMessages(locale: string): Messages {
-  const neutral = locale === "es-MX" || locale === "es-CO";
-  const base = deepMerge(deepMerge(esAR, crmAR), mediaKitAR);
-  if (!neutral) return base;
-  return deepMerge(deepMerge(deepMerge(base, esMX), crmMX), mediaKitMX);
+export function loadMessages(locale?: string): Messages {
+  const catalog = deepMerge(deepMerge(esUY, crmUY), mediaKitUY);
+  if (locale && locale !== ACTIVE_LOCALE) return catalog;
+  return catalog;
 }

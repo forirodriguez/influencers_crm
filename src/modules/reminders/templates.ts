@@ -31,7 +31,7 @@ export const WHATSAPP_TEMPLATES: readonly WhatsappTemplateDefinition[] = [
     language: WHATSAPP_TEMPLATE_LANGUAGE,
     body: "Hola {{1}}, hoy vence el cobro de {{2}} por {{3}}. El detalle está en {{4}}.",
     parameterCount: 4,
-    example: ["Cami", "Bruma Belleza", "ARS 450.000", "https://example.com/cobros"],
+    example: ["Cami", "Bruma Belleza", "UYU 15.000", "https://example.com/cobros"],
     note: "El día de la fecha prometida. Utility.",
   },
   {
@@ -65,7 +65,7 @@ export const WHATSAPP_TEMPLATES: readonly WhatsappTemplateDefinition[] = [
     name: "verificacion_numero",
     category: "AUTHENTICATION",
     language: WHATSAPP_TEMPLATE_LANGUAGE,
-    body: "{{1}} es tu código de verificación. Por tu seguridad, no lo compartas.",
+    body: "{{1}} es tu código de verificación. Por tu seguridad, no lo compartás.",
     parameterCount: 1,
     example: ["123456"],
     note: "Plantilla de autenticación con botón de copiar código. Al enviarla hay que incluir el componente button (sub_type url, index 0) además del body.",

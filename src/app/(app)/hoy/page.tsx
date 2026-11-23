@@ -1,13 +1,15 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { withUser } from "../../../db/client";
-import { addDays, formatCalendarDate, formatDateTime, zonedDateISO } from "../../../lib/dates";
+import { addDays, addDaysISO, formatCalendarDate, formatDateTime, zonedDateISO } from "../../../lib/dates";
 import { formatMoney } from "../../../lib/money";
+import { deliverableAnchor } from "../../../modules/crm/agenda";
 import { FollowUp } from "../../../modules/crm/ui/follow-up";
-import { listPaymentExpectations, listStaleDeals, listUpcomingDeliverables } from "../../../modules/crm/queries";
+import { listDeliverablesInWindow, listPaymentExpectations, listStaleDeals } from "../../../modules/crm/queries";
 import { persistOverdue } from "../../../modules/crm/service";
 import { displayPaymentStatus, outstandingMinor } from "../../../modules/crm/status";
 import { requireAppContext } from "../../../modules/identity/context";
+import { listNotifications } from "../../../modules/reminders/queries";
 
 export async function generateMetadata() {
   const t = await getTranslations("nav");
@@ -23,12 +25,13 @@ export default async function TodayPage() {
   const today = zonedDateISO(new Date(), context.user.timezone);
   const data = await withUser(context.user.id, async (db) => {
     if (canEdit) await persistOverdue(db, context.workspace.workspaceId, today);
-    const [deliverables, payments, stale] = await Promise.all([
-      listUpcomingDeliverables(db, context.workspace.workspaceId, addDays(new Date(), 7)),
+    const [deliverables, payments, stale, notifications] = await Promise.all([
+      listDeliverablesInWindow(db, context.workspace.workspaceId, context.user.timezone, today, addDaysISO(today, 6)),
       listPaymentExpectations(db, context.workspace.workspaceId),
       listStaleDeals(db, context.workspace.workspaceId, addDays(new Date(), -14)),
+      listNotifications(db, context.workspace.workspaceId, context.user.id),
     ]);
-    return { deliverables, payments, stale };
+    return { deliverables, payments, stale, notifications: notifications.filter((note) => note.channel === "in_app") };
   });
   const overdue = data.payments.filter((row) => displayPaymentStatus(row.status, row.dueDate, today) === "overdue");
   return (
@@ -54,7 +57,7 @@ export default async function TodayPage() {
                 <Link href={`/acuerdos/${item.dealId}`} className="block rounded-2xl border border-line bg-card px-4 py-3">
                   <p className="font-medium">{item.dealTitle}</p>
                   <p className="text-sm text-muted">
-                    {item.brandName} · {labels(item.format)} · {item.publishDueAt ? formatDateTime(item.publishDueAt, context.user.locale, context.user.timezone) : crm("due")}
+                    {item.brandName} · {labels(item.format)} · {formatDateTime(deliverableAnchor(item), context.user.locale, context.user.timezone)}
                   </p>
                 </Link>
               </li>
@@ -87,6 +90,28 @@ export default async function TodayPage() {
                     phone={item.contactWhatsapp}
                     email={item.contactEmail}
                   />
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
+      <section>
+        <h2 className="font-display text-2xl">{t("reminders.notifications")}</h2>
+        {data.notifications.length === 0 ? <p className="mt-2 text-sm text-muted">{t("reminders.emptyNotes")}</p> : (
+          <ul className="mt-3 space-y-2">
+            {data.notifications.map((note) => {
+              const payload = note.payload as { title?: string; body?: string; url?: string };
+              const href = payload.url && (payload.url.startsWith("/") || payload.url.startsWith("http")) ? payload.url : null;
+              const body = (
+                <>
+                  <p className="font-medium">{payload.title || note.template}</p>
+                  {payload.body ? <p className="text-sm text-muted">{payload.body}</p> : null}
+                </>
+              );
+              return (
+                <li key={note.id} className="rounded-2xl border border-line bg-card px-4 py-3">
+                  {href ? <a href={href} className="block">{body}</a> : body}
                 </li>
               );
             })}

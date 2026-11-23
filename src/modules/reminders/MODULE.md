@@ -2,7 +2,7 @@
 
 Dueño: reglas, notificaciones, consentimientos, mensajes de WhatsApp y el bot.
 
-Podés editar `src/modules/reminders/**`, `src/app/api/webhooks/whatsapp`, `src/app/api/v1/reminder-rules`, `src/app/api/v1/notifications` y los jobs en `src/jobs/functions/stubs.ts` (o archivos nuevos exportados desde `src/jobs/functions/index.ts`).
+Podés editar `src/modules/reminders/**`, `src/app/api/webhooks/whatsapp`, `src/app/api/v1/reminder-rules`, `src/app/api/v1/notifications` y los jobs en `src/jobs/functions/product.ts` (exportados desde `src/jobs/functions/index.ts`). `nuevo` y `cobré` escriben con `createDeal` y `recordReceipt` del CRM. El resumen y Hoy usan la misma ventana de `src/modules/crm/agenda.ts`.
 
 Contrato del dispatcher:
 

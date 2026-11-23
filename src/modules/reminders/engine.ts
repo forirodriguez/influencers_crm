@@ -1,10 +1,13 @@
 import { and, eq, gte, inArray, isNull, lte, or } from "drizzle-orm";
 import { getJobsDb } from "../../db/client";
+import { resolveLocale } from "../../i18n/load";
 import type { Db } from "../../db/types";
 import { formatCalendarDate, zonedDateISO } from "../../lib/dates";
 import { getEnv } from "../../lib/env.server";
 import { formatMoney } from "../../lib/money";
 import { getEmailAdapter, getWhatsAppAdapter } from "../../integrations";
+import { deliverableAnchor, inLocalWindow, isOpenDeliverable, isOverduePayment } from "../crm/agenda";
+import { persistOverdue } from "../crm/service";
 import { brands, deals, deliverables, paymentExpectations } from "../crm/schema";
 import { memberships, users } from "../identity/schema";
 import { escapeHtml, formatCopy } from "./copy";
@@ -52,10 +55,6 @@ function firstName(name: string | null, email: string): string {
   return trimmed.split(/\s+/)[0] || trimmed;
 }
 
-function dueAnchor(row: { publishDueAt: Date | null; approvalDueAt: Date | null; draftDueAt: Date | null }): Date | null {
-  return row.publishDueAt ?? row.approvalDueAt ?? row.draftDueAt;
-}
-
 async function claim(db: Db, notice: PlannedNotice): Promise<boolean> {
   const inserted = await db
     .insert(notifications)
@@ -85,23 +84,9 @@ export async function markPaymentsOverdue(now = new Date()): Promise<number> {
   for (const owner of owners) {
     if (!timezones.has(owner.workspaceId)) timezones.set(owner.workspaceId, owner.timezone);
   }
-  const rows = await db
-    .select({
-      id: paymentExpectations.id,
-      workspaceId: paymentExpectations.workspaceId,
-      dueDate: paymentExpectations.dueDate,
-    })
-    .from(paymentExpectations)
-    .where(and(eq(paymentExpectations.status, "pending"), isNull(paymentExpectations.deletedAt)));
   let updated = 0;
-  for (const row of rows) {
-    const timezone = timezones.get(row.workspaceId) ?? "America/Argentina/Buenos_Aires";
-    if (row.dueDate >= zonedDateISO(now, timezone)) continue;
-    await db
-      .update(paymentExpectations)
-      .set({ status: "overdue" })
-      .where(and(eq(paymentExpectations.id, row.id), eq(paymentExpectations.status, "pending")));
-    updated += 1;
+  for (const [workspaceId, timezone] of timezones) {
+    updated += await persistOverdue(db, workspaceId, zonedDateISO(now, timezone));
   }
   return updated;
 }
@@ -144,7 +129,7 @@ export async function planReminders(now = new Date(), workspaceId?: string): Pro
   const recipientsByWorkspace = new Map<string, Recipient[]>();
   for (const member of members) {
     const list = recipientsByWorkspace.get(member.workspaceId) ?? [];
-    list.push(member);
+    list.push({ ...member, locale: resolveLocale(member.locale) });
     recipientsByWorkspace.set(member.workspaceId, list);
   }
   const userIds = [...new Set(members.map((member) => member.userId))];
@@ -240,7 +225,7 @@ export async function planReminders(now = new Date(), workspaceId?: string): Pro
     if (rule.entity === "deliverable") {
       for (const row of deliveryRows) {
         if (row.workspaceId !== rule.workspaceId) continue;
-        const anchor = dueAnchor(row);
+        const anchor = deliverableAnchor(row);
         if (!anchor) continue;
         const occurrence = occurrenceInWindow(anchor, rule.offsetMinutes, now);
         if (!occurrence) continue;
@@ -620,7 +605,7 @@ export async function sendDigests(now = new Date()): Promise<number> {
     if (!member.dailySummary) continue;
     if (zonedHour(now, member.timezone) !== 9) continue;
     const list = byUser.get(member.userId) ?? [];
-    list.push(member);
+    list.push({ ...member, locale: resolveLocale(member.locale) });
     byUser.set(member.userId, list);
   }
   if (byUser.size === 0) return 0;
@@ -635,7 +620,8 @@ export async function sendDigests(now = new Date()): Promise<number> {
         draftDueAt: deliverables.draftDueAt,
       })
       .from(deliverables)
-      .where(and(inArray(deliverables.workspaceId, workspaceIds), isNull(deliverables.deletedAt))),
+      .innerJoin(deals, eq(deals.id, deliverables.dealId))
+      .where(and(inArray(deliverables.workspaceId, workspaceIds), isNull(deliverables.deletedAt), isNull(deals.deletedAt))),
     db
       .select({
         workspaceId: paymentExpectations.workspaceId,
@@ -643,7 +629,14 @@ export async function sendDigests(now = new Date()): Promise<number> {
         status: paymentExpectations.status,
       })
       .from(paymentExpectations)
-      .where(and(inArray(paymentExpectations.workspaceId, workspaceIds), isNull(paymentExpectations.deletedAt))),
+      .innerJoin(deals, eq(deals.id, paymentExpectations.dealId))
+      .where(
+        and(
+          inArray(paymentExpectations.workspaceId, workspaceIds),
+          isNull(paymentExpectations.deletedAt),
+          isNull(deals.deletedAt),
+        ),
+      ),
     db
       .select({ userId: whatsappConsents.userId })
       .from(whatsappConsents)
@@ -681,18 +674,16 @@ export async function sendDigests(now = new Date()): Promise<number> {
     let overdueCount = 0;
     for (const row of deliveryRows) {
       if (!workspaceSet.has(row.workspaceId)) continue;
-      if (row.status === "published" || row.status === "cancelled") continue;
-      const anchor = dueAnchor(row);
+      if (!isOpenDeliverable(row.status)) continue;
+      const anchor = deliverableAnchor(row);
       if (!anchor) continue;
-      const local = zonedDateISO(anchor, person.timezone);
       if (weekly) {
-        if (local >= today && local <= weekEnd) deliverableCount += 1;
-      } else if (local === today) deliverableCount += 1;
+        if (inLocalWindow(anchor, person.timezone, today, weekEnd)) deliverableCount += 1;
+      } else if (inLocalWindow(anchor, person.timezone, today, today)) deliverableCount += 1;
     }
     for (const row of paymentRows) {
       if (!workspaceSet.has(row.workspaceId)) continue;
-      if (row.status === "paid" || row.status === "written_off") continue;
-      if (row.status === "overdue" || row.dueDate < today) overdueCount += 1;
+      if (isOverduePayment(row.status, row.dueDate, today)) overdueCount += 1;
     }
     if (deliverableCount === 0 && overdueCount === 0) continue;
     const kind = weekly ? "weekly" : "daily";

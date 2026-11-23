@@ -52,43 +52,52 @@ export function AppShell({
         </div>
       </aside>
       <div className="pb-24 md:pb-0">
-        <header className="flex items-center justify-between border-b border-line px-4 py-3 md:hidden">
-          <Link href="/hoy" className="font-display text-xl">
+        <header className="flex items-center gap-3 border-b border-line px-4 py-3 md:hidden">
+          <Link href="/hoy" className="shrink-0 font-display text-xl">
             {appName}
           </Link>
+          <div className="min-w-0 flex-1">
+            <WorkspaceSelect workspaces={workspaces} current={currentWorkspaceId} compact />
+          </div>
           <LogoutButton label={logoutLabel} />
         </header>
         <main className="mx-auto w-full max-w-5xl px-4 py-6">{children}</main>
       </div>
-      <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-card/95 backdrop-blur md:hidden">
-        <ul className="flex gap-1 overflow-x-auto px-2 py-2 [mask-image:linear-gradient(to_right,black_calc(100%-2rem),transparent)]">
-          {nav.map((item) => (
-            <li key={item.href}>
-              <Link
-                href={item.href}
-                className={cn(
-                  "block whitespace-nowrap rounded-full px-3 py-2 text-sm",
-                  pathname === item.href ? "bg-ink text-paper" : "text-muted",
-                )}
-              >
-                {item.label}
-              </Link>
-            </li>
-          ))}
+      <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
+        <ul className="flex gap-1 overflow-x-auto px-2 py-1">
+          {nav.map((item) => {
+            const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+            return (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className={cn(
+                    "inline-flex min-h-11 items-center whitespace-nowrap rounded-full px-3 text-sm",
+                    active ? "bg-ink text-paper" : "text-muted",
+                  )}
+                >
+                  {item.label}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </nav>
     </div>
   );
 }
 
-function WorkspaceSelect({ workspaces, current }: { workspaces: WorkspaceOption[]; current: string }) {
+function WorkspaceSelect({ workspaces, current, compact = false }: { workspaces: WorkspaceOption[]; current: string; compact?: boolean }) {
   const router = useRouter();
   if (workspaces.length < 2) {
-    return <p className="mt-4 truncate text-sm text-muted">{workspaces[0]?.name}</p>;
+    return <p className={cn("truncate text-sm text-muted", compact ? "" : "mt-4")}>{workspaces[0]?.name}</p>;
   }
   return (
     <select
-      className="mt-4 w-full rounded-xl border border-line bg-paper px-2 py-2 text-sm"
+      className={cn(
+        "w-full rounded-xl border border-line bg-paper px-2 py-2 text-sm",
+        compact ? "min-h-11" : "mt-4",
+      )}
       value={current}
       aria-label="Workspace"
       onChange={async (event) => {
@@ -115,7 +124,7 @@ function LogoutButton({ label }: { label: string }) {
   return (
     <button
       type="button"
-      className="mt-2 text-sm text-clay"
+      className="min-h-11 shrink-0 px-1 text-sm text-clay md:mt-2 md:min-h-0 md:px-0"
       onClick={async () => {
         await fetch("/api/v1/auth/logout", { method: "POST" });
         router.push("/");

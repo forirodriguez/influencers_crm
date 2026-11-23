@@ -123,7 +123,7 @@ async function clock(db: Db, userId: string) {
   const timeZone = user?.timezone || "UTC";
   return {
     timeZone,
-    locale: user?.locale || "es-AR",
+    locale: "es-UY",
     name: user?.name?.trim() || "yo",
     todayISO: zonedDateISO(new Date(), timeZone),
   };
@@ -859,8 +859,8 @@ export async function recordReceipt(db: Db, actor: CrmActor, expectationId: stri
   return { receipt, status };
 }
 
-export async function persistOverdue(db: Db, workspaceId: string, todayISO: string) {
-  await db
+export async function persistOverdue(db: Db, workspaceId: string, todayISO: string): Promise<number> {
+  const rows = await db
     .update(paymentExpectations)
     .set({ status: "overdue" })
     .where(
@@ -870,7 +870,9 @@ export async function persistOverdue(db: Db, workspaceId: string, todayISO: stri
         eq(paymentExpectations.status, "pending"),
         lt(paymentExpectations.dueDate, todayISO),
       ),
-    );
+    )
+    .returning({ id: paymentExpectations.id });
+  return rows.length;
 }
 
 export async function addNote(db: Db, actor: CrmActor, dealId: string, input: unknown) {

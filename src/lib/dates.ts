@@ -22,3 +22,9 @@ export function formatCalendarDate(isoDate: string, locale: string): string {
 export function addDays(date: Date, days: number): Date {
   return new Date(date.getTime() + days * 24 * 60 * 60 * 1000);
 }
+
+/** Adds calendar days to a `YYYY-MM-DD` date, without shifting through a timezone. */
+export function addDaysISO(isoDate: string, days: number): string {
+  const [year, month, day] = isoDate.slice(0, 10).split("-").map(Number);
+  return new Date(Date.UTC(year ?? 1970, (month ?? 1) - 1, (day ?? 1) + days)).toISOString().slice(0, 10);
+}

@@ -93,6 +93,7 @@
     "addNote": "Agregar nota",
     "notePlaceholder": "Una nota para este acuerdo",
     "activityCreated": "Creaste el acuerdo",
+    "activityWhatsapp": "Anotado desde WhatsApp",
     "activityStage": "Pasó de {from} a {to}",
     "activityPayment": "Registraste un cobro de {amount}",
     "activityDeliverable": "Sumaste un entregable",

@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { withUser } from "../../../../db/client";
-import { isLocale, type AppLocale } from "../../../../lib/constants";
+import { ACTIVE_LOCALE, type AppLocale } from "../../../../lib/constants";
 import { softDeleteAccount } from "../../../../modules/identity/privacy";
 import { users } from "../../../../modules/identity/schema";
 import { listMemberships } from "../../../../modules/identity/queries";
@@ -52,8 +52,8 @@ export async function PATCH(req: Request) {
       emailReminders?: boolean;
       dailySummary?: boolean;
     };
-    if (body.locale && !isLocale(body.locale)) {
-      return NextResponse.json({ error: { code: "invalid_locale", message: "Idioma no soportado" } }, { status: 400 });
+    if (body.locale && body.locale !== ACTIVE_LOCALE) {
+      return NextResponse.json({ error: { code: "invalid_locale", message: "Por ahora la interfaz está en español de Uruguay" } }, { status: 400 });
     }
     await updateProfile(session.sub, body);
     const response = jsonData({ ok: true });

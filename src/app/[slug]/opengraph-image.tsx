@@ -12,7 +12,7 @@ export default async function OpenGraphImage({ params }: { params: Promise<{ slu
   const kit = isReservedSlug(slug) || slug.includes(".") ? null : await getPublicMediaKit(slug);
   const accent = kit?.settings.accent || "#b8432f";
   const followers = kit?.accounts.reduce((sum, account) => sum + (account.followers ?? 0), 0) ?? 0;
-  const followerLabel = new Intl.NumberFormat("es-AR").format(followers);
+  const followerLabel = new Intl.NumberFormat("es-UY").format(followers);
   const initial = (kit?.displayName ?? "M").slice(0, 1);
   return new ImageResponse(
     (

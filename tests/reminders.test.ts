@@ -8,6 +8,7 @@ import { getLastEmail } from "../src/integrations/email/console";
 import { CloudWhatsAppAdapter } from "../src/integrations/whatsapp/cloud";
 import { getWhatsAppAdapter } from "../src/integrations";
 import { signWhatsappBody } from "../src/integrations/whatsapp/signature";
+import { listDeals, listPaymentExpectations } from "../src/modules/crm/queries";
 import { brands, deals, deliverables, paymentExpectations, pipelineStages } from "../src/modules/crm/schema";
 import { exportAccount, exportCsv, hardDeleteExpiredAccounts, softDeleteAccount } from "../src/modules/identity/privacy";
 import { loginWithPassword, registerWithPassword } from "../src/modules/identity/service";
@@ -225,6 +226,31 @@ describe("webhook de comandos", () => {
     expect(expectations[0]?.status).toBe("paid");
 
     expect(await executeBotCommand(account.userId, { type: "today" })).toContain("Hoy");
+  });
+
+  it("nuevo y cobré escriben acuerdos y cobros del CRM", async () => {
+    const account = await creator();
+    await optIn(account.userId);
+    const created = await executeBotCommand(account.userId, {
+      type: "new_deal",
+      brand: "Taller Norte",
+      amountMinor: 150000n,
+      currency: "MXN",
+    });
+    expect(created).toContain("Taller Norte");
+    const deals = await withUser(account.userId, (db) => listDeals(db, account.workspaceId));
+    const deal = deals.find((row) => row.brandName === "Taller Norte");
+    expect(deal?.currency).toBe("MXN");
+    expect(deal?.amountMinor).toBe(150000n);
+    expect(deal?.source).toBe("whatsapp");
+
+    const paid = await executeBotCommand(account.userId, { type: "mark_paid", brand: "taller norte" });
+    expect(paid.toLowerCase()).toContain("cobrado");
+    const payments = await withUser(account.userId, (db) => listPaymentExpectations(db, account.workspaceId));
+    expect(payments.find((row) => row.brandName === "Taller Norte")?.status).toBe("paid");
+
+    const week = await executeBotCommand(account.userId, { type: "week" });
+    expect(week.length).toBeGreaterThan(0);
   });
 });
 

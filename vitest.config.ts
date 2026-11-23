@@ -10,6 +10,7 @@ export default defineConfig({
   },
   test: {
     environment: "node",
+    exclude: ["e2e/**", "node_modules/**", ".next/**"],
     fileParallelism: false,
     testTimeout: 20000,
     hookTimeout: 30000,

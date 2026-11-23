@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { withUser } from "../../../db/client";
-import { addDays, formatDateTime } from "../../../lib/dates";
-import { listDeals, listDeliverables, listUpcomingDeliverables } from "../../../modules/crm/queries";
+import { addDaysISO, formatDateTime, zonedDateISO } from "../../../lib/dates";
+import { deliverableAnchor } from "../../../modules/crm/agenda";
+import { listDeals, listDeliverables, listDeliverablesInWindow } from "../../../modules/crm/queries";
 import { WorkspaceDeliverableForm } from "../../../modules/crm/ui/deal-panels";
 import { requireAppContext } from "../../../modules/identity/context";
 
@@ -17,8 +18,9 @@ export default async function DeliverablesPage() {
   const labels = (await getTranslations("labels")) as (key: string) => string;
   const context = await requireAppContext();
   const canEdit = context.workspace.role !== "viewer";
+  const today = zonedDateISO(new Date(), context.user.timezone);
   const data = await withUser(context.user.id, async (db) => ({
-    week: await listUpcomingDeliverables(db, context.workspace.workspaceId, addDays(new Date(), 7)),
+    week: await listDeliverablesInWindow(db, context.workspace.workspaceId, context.user.timezone, today, addDaysISO(today, 6)),
     rows: await listDeliverables(db, context.workspace.workspaceId),
     deals: await listDeals(db, context.workspace.workspaceId),
   }));
@@ -35,7 +37,7 @@ export default async function DeliverablesPage() {
                 <Link href={`/acuerdos/${row.dealId}`} className="block rounded-2xl border border-line bg-card px-4 py-3">
                   <p className="font-medium">{row.dealTitle}</p>
                   <p className="text-sm text-muted">
-                    {row.brandName} · {row.quantity} {labels(row.quantity > 1 && row.format === "story" ? "stories" : row.format)} · {labels(row.status)} · {formatDateTime(row.publishDueAt ?? row.draftDueAt ?? row.approvalDueAt, context.user.locale, context.user.timezone)}
+                    {row.brandName} · {row.quantity} {labels(row.quantity > 1 && row.format === "story" ? "stories" : row.format)} · {labels(row.status)} · {formatDateTime(deliverableAnchor(row), context.user.locale, context.user.timezone)}
                   </p>
                 </Link>
               </li>

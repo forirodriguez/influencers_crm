@@ -17,7 +17,7 @@
     "settings": "Ajustes"
   },
   "landing": {
-    "eyebrow": "Para microinfluencers de México, Argentina, Colombia y Uruguay",
+    "eyebrow": "Para microinfluencers de Uruguay, Argentina, México y Colombia",
     "title": "Los acuerdos con marcas, sin la planilla.",
     "subtitle": "Anotá quién te escribió, qué tenés que publicar y cuánto te deben. Los recordatorios salen por WhatsApp cuando hace falta.",
     "cta": "Creá tu cuenta",
@@ -26,14 +26,14 @@
     "point1Title": "Un pipeline corto",
     "point1Body": "De la propuesta al cobro: lead, negociación, producción, publicado y cobrado. Perdido queda aparte, con motivo.",
     "point2Title": "Cobros por moneda",
-    "point2Body": "ARS, MXN, COP, UYU y USD, cada una por separado. No emitimos facturas y no convertimos montos.",
+    "point2Body": "UYU, ARS, MXN, COP y USD, cada una por separado. No emitimos facturas y no convertimos montos.",
     "point3Title": "Un link para la marca",
     "point3Body": "Media kit con tus redes, servicios y métricas. Lo verificado por API se marca distinto de lo declarado.",
     "note": "Esta base es la fundación del producto. La beta no cobra suscripción y no factura.",
     "sampleKicker": "Acuerdo de ejemplo",
     "sampleBrand": "Bruma Belleza",
     "sampleTitle": "Reel serum vitamina C",
-    "sampleMeta": "En producción · ARS 450.000 · publicación en 3 días"
+    "sampleMeta": "En producción · UYU 15.000 · publicación en 3 días"
   },
   "auth": {
     "loginTitle": "Ingresá",
@@ -85,7 +85,7 @@
   "crm": {
     "pipelineBody": "Kanban en desktop y lista en el celular. Esta pantalla ya agrupa los acuerdos por etapa.",
     "deliverablesBody": "Borrador, aprobación y publicación. El calendario mensual se suma después.",
-    "paymentsBody": "Totales por moneda. No se suman ARS con USD.",
+    "paymentsBody": "Totales por moneda. No se suman UYU con USD.",
     "brandsBody": "Marcas y contactos del espacio. Los días promedio de pago se suman después.",
     "dealBody": "Detalle de solo lectura. Editar entregables, cobros y el mensaje para la marca se suma en el siguiente paso.",
     "empty": "Todavía no hay datos en este espacio.",
@@ -195,7 +195,8 @@
     "title": "Ajustes",
     "account": "Cuenta",
     "members": "Miembros",
-    "locale": "Idioma de la interfaz",
+    "locale": "Idioma",
+    "localeUy": "Español (Uruguay)",
     "export": "Exportar mis datos",
     "delete": "Borrar cuenta",
     "exportHelp": "Bajá un JSON con tu cuenta, acuerdos y cobros, o un CSV de los cobros.",

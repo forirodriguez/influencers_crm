@@ -16,9 +16,12 @@ describe("money", () => {
   });
 
   it("muestra el código de moneda y COP sin decimales", () => {
-    expect(formatMoney(45_000_000n, "ARS", "es-AR")).toContain("ARS");
-    expect(formatMoney(45_000_000n, "ARS", "es-AR")).toContain("450");
-    const cop = formatMoney(180_000_050n, "COP", "es-CO");
+    const uyu = formatMoney(1_500_000n, "UYU", "es-UY");
+    expect(uyu).toContain("UYU");
+    expect(uyu).toContain("15.000");
+    expect(formatMoney(45_000_000n, "ARS", "es-UY")).toContain("ARS");
+    expect(formatMoney(45_000_000n, "ARS", "es-UY")).toContain("450");
+    const cop = formatMoney(180_000_050n, "COP", "es-UY");
     expect(cop).toContain("COP");
     expect(cop).not.toMatch(/,\d{2}\b/);
   });

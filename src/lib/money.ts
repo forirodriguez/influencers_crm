@@ -19,7 +19,7 @@ export function majorToMinor(amount: string, currency: string): bigint {
   return BigInt(whole) * 100n + BigInt(cents);
 }
 
-export function formatMoney(amountMinor: bigint | string | number, currency: string, locale = "es-AR"): string {
+export function formatMoney(amountMinor: bigint | string | number, currency: string, locale = "es-UY"): string {
   const code = isCurrency(currency) ? currency : "USD";
   const minor = typeof amountMinor === "bigint" ? amountMinor : BigInt(amountMinor);
   const negative = minor < 0n;

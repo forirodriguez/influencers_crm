@@ -1,3 +1,4 @@
+import { ACTIVE_LOCALE } from "../../../lib/constants";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { eq } from "drizzle-orm";
@@ -40,7 +41,7 @@ export async function GET(req: Request) {
       name: created.name ?? "Mi espacio",
       type: "personal",
       country: null,
-      currency: "ARS",
+      currency: "UYU",
       profile: {
         displayName: created.name ?? "Creator",
         slug: slugify(created.name ?? created.email),
@@ -57,7 +58,7 @@ export async function GET(req: Request) {
   setAuthCookies(response, {
     token: await createSessionToken(local.id),
     workspaceId: membership?.workspaceId ?? "",
-    locale: local.locale,
+    locale: ACTIVE_LOCALE,
   });
   return response;
 }

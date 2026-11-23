@@ -2,6 +2,7 @@ import { and, eq, isNotNull, isNull } from "drizzle-orm";
 import { getJobsDb } from "../../db/client";
 import { getWhatsAppAdapter } from "../../integrations";
 import { users } from "../identity/schema";
+import { resolveLocale } from "../../i18n/load";
 import { executeBotCommand } from "./bot";
 import { parseCommand } from "./commands";
 import { formatCopy } from "./copy";
@@ -91,7 +92,7 @@ export async function handleWhatsappPost(raw: string, signature: string | null):
     const command = message.type === "text" ? parseCommand(message.body) : { type: "unparsed" as const, text: message.body };
     const user = await findUser(message.from);
     if (!user) {
-      const reply = formatCopy("es-AR", "bot.noAccount");
+      const reply = formatCopy("es-UY", "bot.noAccount");
       await adapter.sendText({ to: message.from, body: reply });
       results.push({ waMessageId: message.id, from: message.from, command: command?.type ?? null, reply, duplicate: false });
       continue;
@@ -113,9 +114,9 @@ export async function handleWhatsappPost(raw: string, signature: string | null):
       .limit(1);
     let reply: string;
     if (!consent && command?.type !== "unsubscribe") {
-      reply = formatCopy(user.locale, "bot.noConsent");
+      reply = formatCopy(resolveLocale(user.locale), "bot.noConsent");
     } else if (!command) {
-      reply = formatCopy(user.locale, "bot.unparsed");
+      reply = formatCopy(resolveLocale(user.locale), "bot.unparsed");
     } else {
       reply = await executeBotCommand(user.id, command);
     }

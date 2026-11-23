@@ -4,7 +4,7 @@ export function Input({ className, ...props }: React.InputHTMLAttributes<HTMLInp
   return (
     <input
       className={cn(
-        "w-full rounded-xl border border-line bg-card px-3 py-2 text-sm text-ink outline-none placeholder:text-muted",
+        "min-h-11 w-full rounded-xl border border-line bg-card px-3 py-2 text-sm text-ink outline-none placeholder:text-muted",
         className,
       )}
       {...props}
@@ -19,7 +19,7 @@ export function Label({ className, ...props }: React.LabelHTMLAttributes<HTMLLab
 export function Select({ className, ...props }: React.SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <select
-      className={cn("w-full rounded-xl border border-line bg-card px-3 py-2 text-sm text-ink", className)}
+      className={cn("min-h-11 w-full rounded-xl border border-line bg-card px-3 py-2 text-sm text-ink", className)}
       {...props}
     />
   );

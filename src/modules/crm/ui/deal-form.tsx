@@ -155,7 +155,7 @@ export function DealForm({
       {showMoney ? (
         <div className="grid gap-3 sm:grid-cols-2">
           <Field label={t("amount")}>
-            <Input name="amount" inputMode="decimal" placeholder="450000" />
+            <Input name="amount" inputMode="decimal" placeholder="15000" />
           </Field>
           <Field label={t("currency")}>
             <Select name="currency" defaultValue={defaultCurrency}>

@@ -95,7 +95,7 @@ export default async function DealPage({ params }: { params: Promise<{ id: strin
                   {t("publishDue")}: {formatDateTime(item.publishDueAt, context.user.locale, context.user.timezone)}
                   {item.draftDueAt ? ` · ${t("draftDue")}: ${formatDateTime(item.draftDueAt, context.user.locale, context.user.timezone)}` : ""}
                 </p>
-                {item.postUrl ? <a className="text-clay" href={item.postUrl}>{item.postUrl}</a> : null}
+                {item.postUrl ? <a className="break-all text-clay" href={item.postUrl}>{item.postUrl}</a> : null}
                 {canEdit ? <div className="mt-2 max-w-xs"><DeliverableQuickEdit dealId={id} deliverableId={item.id} status={item.status} /></div> : <p>{labels(item.status)}</p>}
               </li>
             ))}
@@ -180,5 +180,6 @@ function activityText(
   if (type === "deliverable_added") return t("activityDeliverable");
   if (type === "deliverable_updated") return t("activityUpdated");
   if (type === "deal_created") return t("activityCreated");
+  if (type === "whatsapp_inbound") return t("activityWhatsapp");
   return type;
 }

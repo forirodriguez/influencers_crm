@@ -129,8 +129,8 @@ export function RemindersPanel({
                 onChange={(event) => setNumber(event.target.value)}
                 inputMode="tel"
                 autoComplete="tel"
-                placeholder="+54 9 11 1234-5678"
-                className="mt-1 block w-full rounded-xl border border-line bg-paper px-3 py-2"
+                placeholder="+598 99 123 456"
+                className="mt-1 block min-h-11 w-full rounded-xl border border-line bg-paper px-3 py-2"
                 required
               />
             </label>
@@ -146,7 +146,7 @@ export function RemindersPanel({
                   onChange={(event) => setCode(event.target.value)}
                   inputMode="numeric"
                   autoComplete="one-time-code"
-                  className="mt-1 block w-full rounded-xl border border-line bg-paper px-3 py-2"
+                  className="mt-1 block min-h-11 w-full rounded-xl border border-line bg-paper px-3 py-2"
                   required
                 />
               </label>

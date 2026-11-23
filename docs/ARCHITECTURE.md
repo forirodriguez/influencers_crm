@@ -30,7 +30,7 @@ Cada carpeta tiene un `MODULE.md` con las rutas que ese trabajo puede tocar.
 - No edites `drizzle/0000_init.sql` ni `drizzle/0001_rls.sql`. Un cambio de schema es una migración nueva (`npm run db:generate` o un SQL custom).
 - `src/db/client.ts`, `src/server/http.ts`, `src/lib/**` y `src/components/ui/**` son compartidos. Agregá, no reescribas.
 - La navegación está en `src/components/shell/nav.ts`. Sumar una pantalla es una línea.
-- Los textos van en JSON. El catálogo base es `src/i18n/messages/es-AR/common.json`. El overlay neutro es `src/i18n/messages/es-MX/common.json` y `load.ts` lo mezcla. Si un módulo crece mucho, puede sumar su propio JSON e importarlo en `load.ts` (una línea).
+- Los textos van en JSON. El catálogo activo es `src/i18n/messages/es-UY/`. `load.ts` lo arma con `deepMerge` y no aplica otro overlay. Un locale nuevo es una carpeta y una línea en `load.ts`.
 - Los jobs se agregan en `src/jobs/functions` y se reexportan en `index.ts`.
 - CRM, media kit y recordatorios no pueden importar `@/db/admin`. ESLint lo rechaza. Usá `withUser(userId, db => …)` o `getJobsDb()`.
 - Aunque RLS filtra por membresía, filtrá siempre `workspace_id`. Una persona puede estar en más de un espacio (Diego, en el seed, es viewer de la agencia).
@@ -49,7 +49,7 @@ Tablas sin `workspace_id`, a propósito: `users`, `legal_acceptances`, `social_a
 
 - JSON `{ data }` o `{ error: { code, message } }`.
 - Sesión por cookie. En la API, `X-Workspace-Id` o la cookie `icrm_workspace`.
-- Los POST de CRM, perfiles y reglas responden 501 hasta que el módulo los implemente. Los GET leen la base.
+- Las escrituras de CRM, media kit y recordatorios pasan por `withUser`. El bot de WhatsApp crea acuerdos y marca cobros con las mismas funciones del CRM.
 
 ## Integraciones
 
@@ -57,5 +57,5 @@ Tablas sin `workspace_id`, a propósito: `users`, `legal_acceptances`, `social_a
 
 ## i18n y plata
 
-- Locale por cookie `icrm_locale`, default `es-AR`.
+- Locale por cookie `icrm_locale`. La voz activa es `es-UY`.
 - `formatMoney` / `majorToMinor` en `src/lib/money.ts`. COP sin decimales en la UI. Sin tipo de cambio.

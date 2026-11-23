@@ -74,10 +74,10 @@ export function MediaKitEditor({
           >
             {copied ? t("copied") : t("copyLink")}
           </Button>
-          <a className="inline-flex items-center rounded-full border border-line px-4 py-2 text-sm" href={publicUrl}>
+          <a className="inline-flex min-h-11 items-center rounded-full border border-line px-4 py-2 text-sm" href={publicUrl}>
             {t("openPublic")}
           </a>
-          <a className="inline-flex items-center rounded-full border border-line px-4 py-2 text-sm" href={`${publicUrl}/opengraph-image`}>
+          <a className="inline-flex min-h-11 items-center rounded-full border border-line px-4 py-2 text-sm" href={`${publicUrl}/opengraph-image`}>
             {t("shareImage")}
           </a>
         </div>
@@ -96,6 +96,7 @@ export function MediaKitEditor({
           </Field>
           <Field label={t("fields.bio")}>
             <textarea
+              aria-label={t("fields.bio")}
               className="min-h-28 w-full rounded-xl border border-line bg-card px-3 py-2 text-sm"
               maxLength={280}
               value={form.bio}

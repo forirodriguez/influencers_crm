@@ -1,4 +1,6 @@
-import { zonedDateISO } from "../../lib/dates";
+import { addDaysISO, zonedDateISO } from "../../lib/dates";
+
+export { addDaysISO };
 
 export const REMINDER_LOOKBACK_MS = 26 * 60 * 60 * 1000;
 export const WHATSAPP_RETENTION_MS = 90 * 24 * 60 * 60 * 1000;
@@ -28,11 +30,6 @@ export function zonedDateTimeToUtc(isoDate: string, hour: number, minute: number
   const corrected = new Date(guess.getTime() - offset);
   const again = timeZoneOffsetMs(corrected, timeZone);
   return again === offset ? corrected : new Date(guess.getTime() - again);
-}
-
-export function addDaysISO(isoDate: string, days: number): string {
-  const [year, month, day] = isoDate.slice(0, 10).split("-").map(Number);
-  return new Date(Date.UTC(year ?? 1970, (month ?? 1) - 1, (day ?? 1) + days)).toISOString().slice(0, 10);
 }
 
 export function localDayBounds(now: Date, timeZone: string): { start: Date; end: Date } {

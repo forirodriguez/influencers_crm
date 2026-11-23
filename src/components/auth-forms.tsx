@@ -30,10 +30,10 @@ type Copy = {
 };
 
 const countries = [
+  ["UY", "countryUY"],
   ["AR", "countryAR"],
   ["MX", "countryMX"],
   ["CO", "countryCO"],
-  ["UY", "countryUY"],
   ["OTHER", "countryOther"],
 ] as const;
 
@@ -101,7 +101,7 @@ export function LoginForm({ copy }: { copy: Copy }) {
 export function RegisterForm({ copy }: { copy: Copy }) {
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
-  const [country, setCountry] = useState("AR");
+  const [country, setCountry] = useState("UY");
   const router = useRouter();
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {

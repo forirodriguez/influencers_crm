@@ -31,7 +31,7 @@ export default async function SettingsPage() {
         <h2 className="font-display text-2xl">{t("settings.account")}</h2>
         <p className="mt-2 text-sm">{context.user.email}</p>
         <p className="text-sm text-muted">{context.user.country} · {context.user.timezone}</p>
-        <LocaleForm label={t("settings.locale")} current={context.user.locale} save={t("common.save")} />
+        <LocaleForm label={t("settings.locale")} optionLabel={t("settings.localeUy")} current={context.user.locale} save={t("common.save")} />
       </section>
       <RemindersPanel
         workspaceId={context.workspace.workspaceId}

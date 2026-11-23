@@ -13,6 +13,7 @@ import {
   paymentsReceived,
   pipelineStages,
 } from "./schema";
+import { deliverableAnchor, inLocalWindow, isOpenDeliverable } from "./agenda";
 import { displayPaymentStatus, worstPaymentStatus, type PaymentStatus } from "./status";
 
 export type DealFilters = {
@@ -39,7 +40,7 @@ export async function listStages(db: Db, workspaceId: string) {
 
 export async function listProfiles(db: Db, workspaceId: string) {
   return db
-    .select({ id: creatorProfiles.id, displayName: creatorProfiles.displayName })
+    .select({ id: creatorProfiles.id, displayName: creatorProfiles.displayName, userId: creatorProfiles.userId })
     .from(creatorProfiles)
     .where(and(eq(creatorProfiles.workspaceId, workspaceId), isNull(creatorProfiles.deletedAt)))
     .orderBy(asc(creatorProfiles.displayName));
@@ -191,13 +192,23 @@ export async function listDeliverables(db: Db, workspaceId: string, filters: { d
     .limit(300);
 }
 
-export async function listUpcomingDeliverables(db: Db, workspaceId: string, until: Date) {
+export async function listDeliverablesInWindow(
+  db: Db,
+  workspaceId: string,
+  timeZone: string,
+  fromISO: string,
+  toISO: string,
+) {
   const rows = await listDeliverables(db, workspaceId);
   return rows.filter((row) => {
-    if (row.status === "published" || row.status === "cancelled") return false;
-    const due = row.publishDueAt ?? row.draftDueAt ?? row.approvalDueAt;
-    return due !== null && due.getTime() <= until.getTime();
+    if (!isOpenDeliverable(row.status)) return false;
+    const due = deliverableAnchor(row);
+    return due !== null && inLocalWindow(due, timeZone, fromISO, toISO);
   });
+}
+
+export async function listUpcomingDeliverables(db: Db, workspaceId: string, until: Date, timeZone = "UTC", now = new Date()) {
+  return listDeliverablesInWindow(db, workspaceId, timeZone, zonedDateISO(now, timeZone), zonedDateISO(until, timeZone));
 }
 
 export async function listStaleDeals(db: Db, workspaceId: string, cutoff: Date) {
@@ -337,7 +348,7 @@ export async function paymentSummary(db: Db, workspaceId: string, todayISO: stri
     else item.pending += outstanding;
   }
 
-  const order = ["ARS", "MXN", "COP", "UYU", "USD"];
+  const order = ["UYU", "ARS", "MXN", "COP", "USD"];
   return [...summary.entries()]
     .map(([currency, amounts]) => ({ currency, ...amounts }))
     .sort((a, b) => {

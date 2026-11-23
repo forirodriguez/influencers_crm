@@ -17,4 +17,4 @@ Podés editar `src/modules/crm/**` y estas rutas:
 
 No importes `@/db/admin`. Usá `withUser` y filtrá por `workspaceId`: RLS deja ver todos los workspaces del usuario, no uno solo.
 
-Los POST de estas colecciones responden `501 not_implemented` a propósito.
+Las escrituras viven en `service.ts`. Hoy, Entregables y el bot comparten la ventana de `agenda.ts` (hoy inclusive hasta seis días después, ancla publicación → aprobación → borrador).

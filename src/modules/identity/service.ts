@@ -2,7 +2,7 @@ import { createHash, randomBytes } from "node:crypto";
 import { and, eq, isNull } from "drizzle-orm";
 import { withAdmin, withUser } from "../../db/client";
 import type { Db } from "../../db/types";
-import { COUNTRY_PRESETS, LEGAL_VERSION, MX_TIMEZONES, isLocale, type AppLocale, type CurrencyCode } from "../../lib/constants";
+import { ACTIVE_LOCALE, COUNTRY_PRESETS, LEGAL_VERSION, MX_TIMEZONES, type AppLocale, type CurrencyCode } from "../../lib/constants";
 import { ApiError, isUniqueViolation } from "../../lib/errors";
 import { getEnv } from "../../lib/env.server";
 import { rateLimit } from "../../lib/rate-limit";
@@ -169,7 +169,7 @@ export async function loginWithPassword(input: { email: string; password: string
     token: await createSessionToken(found.user.id),
     userId: found.user.id,
     workspaceId,
-    locale: isLocale(found.user.locale) ? found.user.locale : "es-AR",
+    locale: "es-UY" as const,
     needsOnboarding: !found.user.country,
   };
 }
@@ -230,7 +230,7 @@ export async function consumeMagicLink(token: string): Promise<AuthResult> {
       name: created.name ?? "Mi espacio",
       type: "personal",
       country: null,
-      currency: "ARS",
+      currency: "UYU",
       profile: { displayName: created.name ?? "Creator", slug, country: null, publicEmail: created.email },
     });
     return created;
@@ -241,7 +241,7 @@ export async function consumeMagicLink(token: string): Promise<AuthResult> {
     token: await createSessionToken(consumed.id),
     userId: consumed.id,
     workspaceId,
-    locale: isLocale(consumed.locale) ? consumed.locale : "es-AR",
+    locale: "es-UY" as const,
     needsOnboarding: !consumed.country,
   };
 }
@@ -265,8 +265,8 @@ export async function updateProfile(
     patch.name = name;
   }
   if (input.locale !== undefined) {
-    if (!isLocale(input.locale)) throw new ApiError("invalid_locale", "Idioma no soportado", 400);
-    patch.locale = input.locale;
+    if (input.locale !== ACTIVE_LOCALE) throw new ApiError("invalid_locale", "Por ahora la interfaz está en español de Uruguay", 400);
+    patch.locale = ACTIVE_LOCALE;
   }
   if (input.timezone !== undefined) patch.timezone = input.timezone;
   if (input.country !== undefined) {
