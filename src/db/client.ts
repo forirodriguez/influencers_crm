@@ -2,6 +2,8 @@ import { sql as drizzleSql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres, { type Sql } from "postgres";
 import { getEnv } from "../lib/env.server";
+import { connectionOptions } from "./connection";
+import { isTransactionPooler } from "./hosted";
 import { schema } from "./schema";
 import type { Db } from "./types";
 
@@ -10,7 +12,8 @@ const pools = new Map<string, Sql>();
 function pool(url: string): Sql {
   const existing = pools.get(url);
   if (existing) return existing;
-  const created = postgres(url, { max: 5, idle_timeout: 20, connect_timeout: 10 });
+  const max = isTransactionPooler(url) ? 1 : 5;
+  const created = postgres(url, connectionOptions(url, max));
   pools.set(url, created);
   return created;
 }

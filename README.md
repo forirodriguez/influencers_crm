@@ -2,7 +2,7 @@
 
 CRM para microinfluencers de Latam hispanohablante: acuerdos con marcas, entregas, cobros, media kit y recordatorios por WhatsApp. La interfaz, los mails y el bot están en español uruguayo (voseo).
 
-El spec está en [`docs/spec.md`](docs/spec.md). Las decisiones están en [`docs/decisions.md`](docs/decisions.md). El mapa del repo está en [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+El spec está en [`docs/spec.md`](docs/spec.md). Las decisiones están en [`docs/decisions.md`](docs/decisions.md). El mapa del repo está en [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md). Para subirlo a Vercel y Supabase, seguí [`docs/DEPLOY.md`](docs/DEPLOY.md).
 
 ## Qué corre
 

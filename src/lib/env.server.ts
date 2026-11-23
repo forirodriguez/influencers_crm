@@ -47,5 +47,8 @@ export function getEnv(): Env {
     const details = parsed.error.issues.map((issue) => issue.path.join(".")).join(", ");
     throw new Error(`Faltan variables de entorno o son inválidas: ${details}`);
   }
+  if (process.env.VERCEL_ENV === "production" && parsed.data.AUTH_DEV_EXPOSE_LINKS === "true") {
+    throw new Error("AUTH_DEV_EXPOSE_LINKS no puede ser true en el deploy de producción");
+  }
   return parsed.data;
 }

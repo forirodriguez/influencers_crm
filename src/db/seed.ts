@@ -12,6 +12,8 @@ import { hashPassword } from "../modules/identity/password";
 import { authCredentials, invitations, legalAcceptances, memberships, users } from "../modules/identity/schema";
 import { creatorProfiles, metricSnapshots, services, socialAccounts } from "../modules/media-kit/schema";
 import { notifications, whatsappConsents } from "../modules/reminders/schema";
+import { connectionOptions } from "./connection";
+import { assertMigrationConnection, isHostedDatabase } from "./hosted";
 import { loadEnvFile } from "./load-env";
 import { schema } from "./schema";
 import { truncatePublicTables } from "./truncate";
@@ -100,11 +102,13 @@ export async function seedDemo(): Promise<void> {
   const databaseUrl = process.env.DATABASE_URL;
   if (!databaseUrl) throw new Error("DATABASE_URL es obligatorio");
   if (databaseUrl.includes("influencers_crm_test")) throw new Error("No se seedea la base de tests");
-  if (process.env.NODE_ENV === "production" && process.env.ALLOW_SEED !== "true") {
-    throw new Error("Para seedear producción hace falta ALLOW_SEED=true");
+  const hosted = isHostedDatabase(databaseUrl);
+  if ((hosted || process.env.NODE_ENV === "production") && process.env.ALLOW_SEED !== "true") {
+    throw new Error("El seed borra los datos de la base. En Supabase o en producción hace falta ALLOW_SEED=true");
   }
 
-  const connection = postgres(databaseUrl, { max: 1 });
+  assertMigrationConnection(databaseUrl);
+  const connection = postgres(databaseUrl, connectionOptions(databaseUrl, 1));
   await truncatePublicTables(connection);
   const db = drizzle(connection, { schema });
   const passwordHash = await hashPassword(DEMO_PASSWORD);
