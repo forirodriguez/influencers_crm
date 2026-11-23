@@ -24,5 +24,32 @@
   },
   "common": {
     "empty": "Nada por aquí todavía."
+  },
+  "reminders": {
+    "quiet": "No se manda WhatsApp entre las 21:00 y las 8:00, hora local. Tope: 3 mensajes por día. Si no entra, sale por email.",
+    "phoneHelp": "Te enviamos un código para confirmar el número. El consentimiento queda guardado con fecha.",
+    "rulesHelp": "Estas reglas valen para todo el espacio. El canal externo es WhatsApp si hay opt-in y está dentro del horario; si no, email. Siempre queda un aviso en la app.",
+    "emptyNotes": "Todavía no hay avisos."
+  },
+  "notify": {
+    "dailyBody": "Hoy tienes {deliverables} entregas y {overdue} cobros vencidos.",
+    "weeklyBody": "Esta semana tienes {deliverables} entregas y {overdue} cobros vencidos.",
+    "emailFooter": "Puedes cambiar los avisos en Ajustes."
+  },
+  "bot": {
+    "unparsed": "No entendí ese mensaje. Escribe ayuda para ver los comandos.",
+    "unsubscribed": "Listo, diste de baja los recordatorios por WhatsApp. Puedes volver a activarlos en Ajustes.",
+    "noAccount": "No encuentro una cuenta con este número. Entra a Ajustes y verifica tu WhatsApp.",
+    "noConsent": "Este número no tiene los recordatorios activados. Entra a Ajustes para aceptarlos.",
+    "hoyEmpty": "Hoy no tienes entregas ni cobros vencidos.",
+    "weekEmpty": "No tienes entregas en los próximos 7 días.",
+    "paymentsEmpty": "No tienes cobros pendientes ni vencidos.",
+    "pendingEmpty": "No tienes entregas pendientes.",
+    "created": "Anoté un acuerdo con {brand} por {amount}. Complétalo en {url}"
+  },
+  "settings": {
+    "exportHelp": "Descarga un JSON con tu cuenta, acuerdos y cobros, o un CSV de los cobros.",
+    "deleteHelp": "La baja es inmediata. A los 30 días se borra la cuenta, los tokens de redes y el número de WhatsApp.",
+    "deleteConfirm": "Escribe BORRAR para confirmar"
   }
 }

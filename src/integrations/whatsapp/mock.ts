@@ -1,4 +1,3 @@
-import { IntegrationNotConfigured } from "../../lib/errors";
 import type { WhatsAppAdapter, WhatsappTemplateMessage } from "./adapter";
 import { parseWhatsappPayload } from "./parse";
 import { verifyWhatsappSignature } from "./signature";
@@ -28,20 +27,9 @@ export class MockWhatsAppAdapter implements WhatsAppAdapter {
     return { providerMessageId: `mock-wa-${message.templateName}-${message.to}` };
   }
 
-  async sendText(): Promise<{ providerMessageId: string }> {
-    return { providerMessageId: `mock-wa-text-${Date.now()}` };
+  async sendText(input: { to: string; body: string }): Promise<{ providerMessageId: string }> {
+    const to = input.to.replace(/\D/g, "");
+    return { providerMessageId: `mock-wa-text-${to}-${Date.now()}-${Math.random().toString(16).slice(2)}` };
   }
 }
 
-export class LiveWhatsAppAdapter extends MockWhatsAppAdapter {
-  async sendTemplate(): Promise<{ providerMessageId: string }> {
-    throw new IntegrationNotConfigured(
-      "whatsapp",
-      "El envío live a WhatsApp Cloud API lo implementa el módulo de recordatorios. Endpoint: POST https://graph.facebook.com/v21.0/{phone-number-id}/messages",
-    );
-  }
-
-  async sendText(): Promise<{ providerMessageId: string }> {
-    throw new IntegrationNotConfigured("whatsapp", "El texto libre live queda para el módulo de recordatorios, dentro de la ventana de 24 h.");
-  }
-}

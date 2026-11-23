@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { withUser } from "../db/client";
 import type { Db } from "../db/types";
@@ -5,6 +6,7 @@ import { ApiError } from "../lib/errors";
 import { captureException } from "../lib/observability/sentry";
 import { readCookie, verifySessionToken } from "../lib/session";
 import { listMemberships } from "../modules/identity/queries";
+import { users } from "../modules/identity/schema";
 
 export type WorkspaceRole = "owner" | "manager" | "viewer";
 
@@ -59,6 +61,8 @@ export async function withWorkspace(
     const workspaceId = req.headers.get("x-workspace-id") ?? readCookie(req.headers.get("cookie"), "icrm_workspace");
     if (!workspaceId) throw new ApiError("workspace_required", "Falta el workspace", 400);
     const body = await withUser(session.sub, async (db) => {
+      const [account] = await db.select({ deletedAt: users.deletedAt }).from(users).where(eq(users.id, session.sub)).limit(1);
+      if (!account || account.deletedAt) throw new ApiError("unauthorized", "Tenés que iniciar sesión", 401);
       const memberships = await listMemberships(db, session.sub);
       const membership = memberships.find((item) => item.workspaceId === workspaceId);
       if (!membership) throw new ApiError("forbidden", "No pertenecés a este espacio", 403);

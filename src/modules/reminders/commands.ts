@@ -5,6 +5,9 @@ export type BotCommand =
   | { type: "help" }
   | { type: "unsubscribe" }
   | { type: "week" }
+  | { type: "today" }
+  | { type: "payments" }
+  | { type: "pending" }
   | { type: "mark_paid"; brand: string }
   | { type: "new_deal"; brand: string; amountMinor: bigint; currency: CurrencyCode }
   | { type: "unparsed"; text: string };
@@ -16,6 +19,9 @@ export function parseCommand(input: string): BotCommand | null {
   if (normalized === "ayuda" || normalized === "help") return { type: "help" };
   if (normalized === "baja" || normalized === "stop") return { type: "unsubscribe" };
   if (normalized === "semana" || normalized === "week") return { type: "week" };
+  if (normalized === "hoy" || normalized === "today") return { type: "today" };
+  if (normalized === "cobros" || normalized === "pagos") return { type: "payments" };
+  if (normalized === "pendientes") return { type: "pending" };
 
   const paid = text.match(/^cobr[eé]\s+(.+)$/i);
   if (paid?.[1]) return { type: "mark_paid", brand: paid[1].trim() };
