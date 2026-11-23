@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getWhatsAppAdapter } from "../../../../integrations";
-import { parseCommand } from "../../../../modules/reminders/commands";
+import { handleWhatsappPost } from "../../../../modules/reminders/webhook";
 import { jsonData } from "../../../../server/http";
 
 export async function GET(req: Request) {
@@ -11,24 +11,7 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   const raw = await req.text();
-  const adapter = getWhatsAppAdapter();
-  if (!adapter.verifySignature(raw, req.headers.get("x-hub-signature-256"))) {
-    return NextResponse.json({ error: { code: "invalid_signature", message: "Firma inválida" } }, { status: 401 });
-  }
-  let payload: unknown = {};
-  try {
-    payload = raw ? JSON.parse(raw) : {};
-  } catch {
-    return NextResponse.json({ error: { code: "invalid_json", message: "JSON inválido" } }, { status: 400 });
-  }
-  const messages = adapter.parseInbound(payload);
-  return jsonData({
-    received: messages.length,
-    executed: false,
-    commands: messages.map((message) => ({
-      waMessageId: message.id,
-      from: message.from,
-      command: parseCommand(message.body),
-    })),
-  });
+  const result = await handleWhatsappPost(raw, req.headers.get("x-hub-signature-256"));
+  if (result.status !== 200) return NextResponse.json(result.body, { status: result.status });
+  return jsonData(result.body);
 }

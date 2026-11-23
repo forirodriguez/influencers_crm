@@ -248,7 +248,15 @@ export async function consumeMagicLink(token: string): Promise<AuthResult> {
 
 export async function updateProfile(
   userId: string,
-  input: { name?: string; locale?: string; timezone?: string; country?: CountryChoice; phoneE164?: string | null },
+  input: {
+    name?: string;
+    locale?: string;
+    timezone?: string;
+    country?: CountryChoice;
+    phoneE164?: string | null;
+    emailReminders?: boolean;
+    dailySummary?: boolean;
+  },
 ): Promise<void> {
   const patch: Partial<typeof users.$inferInsert> = {};
   if (input.name !== undefined) {
@@ -266,6 +274,8 @@ export async function updateProfile(
     patch.country = country === "OTHER" ? null : country;
   }
   if (input.phoneE164 !== undefined) patch.phoneE164 = input.phoneE164;
+  if (input.emailReminders !== undefined) patch.emailReminders = input.emailReminders;
+  if (input.dailySummary !== undefined) patch.dailySummary = input.dailySummary;
   await withUser(userId, async (db) => {
     await db.update(users).set(patch).where(eq(users.id, userId));
   });

@@ -5,7 +5,8 @@ import { LiveInstagramAdapter, MockInstagramAdapter } from "./instagram/mock";
 import type { InstagramAdapter } from "./instagram/adapter";
 import { LiveTikTokAdapter, MockTikTokAdapter } from "./tiktok/mock";
 import type { TikTokAdapter } from "./tiktok/adapter";
-import { LiveWhatsAppAdapter, MockWhatsAppAdapter } from "./whatsapp/mock";
+import { CloudWhatsAppAdapter } from "./whatsapp/cloud";
+import { MockWhatsAppAdapter } from "./whatsapp/mock";
 import type { WhatsAppAdapter } from "./whatsapp/adapter";
 import { IntegrationNotConfigured } from "../lib/errors";
 
@@ -20,7 +21,12 @@ export function getEmailAdapter(): EmailAdapter {
 }
 
 export function getWhatsAppAdapter(): WhatsAppAdapter {
-  return live() ? new LiveWhatsAppAdapter() : new MockWhatsAppAdapter();
+  const token = process.env.WHATSAPP_TOKEN;
+  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+  if (live() && token && phoneNumberId) {
+    return new CloudWhatsAppAdapter({ token, phoneNumberId });
+  }
+  return new MockWhatsAppAdapter();
 }
 
 export function getInstagramAdapter(): InstagramAdapter {

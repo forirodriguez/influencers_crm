@@ -5,6 +5,8 @@ export type WhatsappTemplateMessage = {
   templateName: string;
   language: string;
   bodyParameters: string[];
+  /** Código del botón OTP. Solo la plantilla de autenticación lo usa. */
+  buttonParameters?: string[];
 };
 
 export interface WhatsAppAdapter {

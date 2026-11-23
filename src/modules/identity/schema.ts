@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { index, jsonb, pgEnum, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import { boolean, index, jsonb, pgEnum, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 import { primaryId, timestamps } from "../../db/schema/helpers";
 
 export const workspaceTypeEnum = pgEnum("workspace_type", ["personal", "agency"]);
@@ -19,6 +19,8 @@ export const users = pgTable(
     country: text("country"),
     phoneE164: text("phone_e164"),
     phoneVerifiedAt: timestamp("phone_verified_at", { withTimezone: true, mode: "date" }),
+    emailReminders: boolean("email_reminders").notNull().default(true),
+    dailySummary: boolean("daily_summary").notNull().default(true),
     ...timestamps,
   },
   (table) => [

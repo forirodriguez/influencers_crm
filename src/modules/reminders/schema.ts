@@ -1,5 +1,7 @@
+import { sql } from "drizzle-orm";
 import { boolean, index, integer, jsonb, pgEnum, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 import { primaryId, timestamps } from "../../db/schema/helpers";
+import { deals } from "../crm/schema";
 import { users, workspaces } from "../identity/schema";
 
 export const reminderEntityEnum = pgEnum("reminder_entity", ["deliverable", "payment"]);
@@ -87,5 +89,46 @@ export const whatsappMessages = pgTable(
     status: text("status"),
     ...timestamps,
   },
-  (table) => [index("whatsapp_messages_user_idx").on(table.userId), index("whatsapp_messages_wa_id_idx").on(table.waMessageId)],
+  (table) => [
+    index("whatsapp_messages_user_idx").on(table.userId),
+    index("whatsapp_messages_wa_id_idx").on(table.waMessageId),
+    uniqueIndex("whatsapp_messages_wa_id_unique").on(table.waMessageId).where(sql`${table.waMessageId} is not null`),
+  ],
+);
+
+export const phoneVerifications = pgTable(
+  "phone_verifications",
+  {
+    id: primaryId(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    phoneE164: text("phone_e164").notNull(),
+    codeHash: text("code_hash").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true, mode: "date" }).notNull(),
+    consumedAt: timestamp("consumed_at", { withTimezone: true, mode: "date" }),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
+  },
+  (table) => [index("phone_verifications_user_idx").on(table.userId)],
+);
+
+export const reminderMutes = pgTable(
+  "reminder_mutes",
+  {
+    id: primaryId(),
+    workspaceId: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    dealId: uuid("deal_id")
+      .notNull()
+      .references(() => deals.id, { onDelete: "cascade" }),
+    ...timestamps,
+  },
+  (table) => [
+    uniqueIndex("reminder_mutes_user_deal_unique").on(table.userId, table.dealId).where(sql`${table.deletedAt} is null`),
+    index("reminder_mutes_workspace_idx").on(table.workspaceId),
+  ],
 );
